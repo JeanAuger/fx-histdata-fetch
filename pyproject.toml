@@ -1,9 +1,10 @@
 [project]
-name = "FX-1-Minute-Data"
-version = "0.1.0"
+name = "FX-HISTORY-DATA"
+version = "1.0.0"
 description = "Default template for PDM package"
 authors = [
-    {name = "Philippe Rémy", email = "jean.auger.42@gmail.com"},
+    {name = "Jean Auger", email = "jean.auger.42@gmail.com"},
+    {name = "Philippe Rémy", email = ""},
 ]
 dependencies = [
     "requests>=2.20.0",
