@@ -1,24 +1,30 @@
 import os
 from datetime import datetime
-
+from enum import Enum
 import requests
 from bs4 import BeautifulSoup
 
 
-class TimeFrame:
+class TimeFrame(str, Enum):
     ONE_MINUTE = 'M1'
     TICK_DATA = 'T'
     TICK_DATA_LAST = 'T_LAST'
     TICK_DATA_BID = 'T_BID'
     TICK_DATA_ASK = 'T_ASK'
 
+    def __str__(self) -> str:
+        return self.value
 
-class Platform:
+
+class Platform(str, Enum):
     META_TRADER = 'MT'
     GENERIC_ASCII = 'ASCII'
     EXCEL = 'XLSX'
     NINJA_TRADER = 'NT'
     META_STOCK = 'MS'
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class URL:
@@ -81,8 +87,10 @@ def download_hist_data(year='2016',
     """
 
     tick_data = time_frame.startswith('T')
-    if (not tick_data) and ((int(year) >= datetime.now().year and month is None) or
-                            (int(year) <= datetime.now().year - 1 and month is not None)):
+    if (not tick_data) and (
+            (int(year) >= datetime.now().year and month is None) or
+            (int(year) <= datetime.now().year - 1 and month is not None)
+    ):
         msg = 'For the current year, please specify month=7 for example.\n'
         msg += 'For the past years, please query per year with month=None.'
         raise AssertionError(msg)
@@ -91,18 +99,22 @@ def download_hist_data(year='2016',
     referer = get_referer(prefix_referer, pair.lower(), year, month)
 
     # Referer is the most important thing here.
-    headers = {'Host': 'www.histdata.com',
-               'Connection': 'keep-alive',
-               'Content-Length': '104',
-               'Cache-Control': 'max-age=0',
-               'Origin': 'https://www.histdata.com',
-               'Upgrade-Insecure-Requests': '1',
-               'Content-Type': 'application/x-www-form-urlencoded',
-               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-               'Referer': referer}
+    headers = {
+        'Host': 'www.histdata.com',
+        'Connection': 'keep-alive',
+        'Content-Length': '104',
+        'Cache-Control': 'max-age=0',
+        'Origin': 'https://www.histdata.com',
+        'Upgrade-Insecure-Requests': '1',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Referer': referer
+    }
 
     if verbose:
         print(referer)
+        pass
+
     r1 = requests.get(referer, allow_redirects=True)
     assert r1.status_code == 200, 'Make sure the website www.histdata.com is up.'
 
@@ -111,36 +123,64 @@ def download_hist_data(year='2016',
         token = soup.find('input', {'id': 'tk'}).attrs['value']
         assert len(token) > 0
     except:
-        raise AssertionError('There is no token. Please make sure your year/month/pair is correct.'
-                             'Example is year=2016, month=7, pair=eurgbp')
+        raise AssertionError(
+            'There is no token. Please make sure your year/month/pair is correct.'
+            'Example is year=2016, month=7, pair=eurgbp'
+        )
 
-    data = {'tk': token,
-            'date': str(year),
-            'datemonth': '{}{}'.format(year, str(month).zfill(2)) if month is not None else str(year),
-            'platform': platform,
-            'timeframe': time_frame,
-            'fxpair': pair.upper()}
-    r = requests.post(url='https://www.histdata.com/get.php',
-                      data=data,
-                      headers=headers)
+    data = {
+        'tk': token,
+        'date': str(year),
+        'datemonth': '{}{}'.format(year, str(month).zfill(2)) if month is not None else str(year),
+        'platform': platform,
+        'timeframe': time_frame,
+        'fxpair': pair.upper()
+    }
+
+    r = requests.post(
+        url='https://www.histdata.com/get.php',
+        data=data,
+        headers=headers
+    )
 
     assert len(r.content) > 0, 'No data could be found here.'
+
     if verbose:
         print(data)
+        pass
+
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
+        pass
+
     if month is None:
-        output_filename = 'DAT_{}_{}_{}_{}.zip'.format(platform, pair.upper(), time_frame, str(year))
+        output_filename = 'DAT_{}_{}_{}_{}.zip'.format(
+            platform, 
+            pair.upper(), 
+            time_frame, 
+            str(year)
+        )
     else:
-        output_filename = 'DAT_{}_{}_{}_{}.zip'.format(platform, pair.upper(), time_frame,
-                                                       '{}{}'.format(year, str(month).zfill(2)))
+        output_filename = 'DAT_{}_{}_{}_{}.zip'.format(
+            platform, 
+            pair.upper(), 
+            time_frame,
+            '{}{}'.format(str(year), str(month).zfill(2))
+        )
+        pass
+    
     output_filename = os.path.join(output_directory, output_filename)
+
     with open(output_filename, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
+                pass
+    # 
     if verbose:
         print('Wrote to {}'.format(output_filename))
+        pass
+    # 
     return output_filename
 
 
