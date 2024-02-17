@@ -1,0 +1,18 @@
+[project]
+name = "FX-1-Minute-Data"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Philippe Rémy", email = "jean.auger.42@gmail.com"},
+]
+dependencies = [
+    "requests>=2.20.0",
+    "beautifulsoup4>=4.6.0",
+]
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false

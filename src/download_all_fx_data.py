@@ -1,7 +1,7 @@
 import csv
 import os
 
-from histdata.api import download_hist_data
+from .histdata.api import download_hist_data
 
 
 def mkdir_p(path):

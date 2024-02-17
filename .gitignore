@@ -101,3 +101,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+output_*/
+__pypackages__/
+.pdm-python
