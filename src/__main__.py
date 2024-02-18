@@ -1,4 +1,5 @@
-from .histdata.api import download_hist_data, Platform, TimeFrame
+from .histdata.api import download_hist_data
+from .histdata.domain import Platform, TimeFrame
 from pathlib import Path
 import typer
 from typer import Argument, Option, colors, secho
